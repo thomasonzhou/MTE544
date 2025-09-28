@@ -10,10 +10,10 @@ from rclpy.qos import QoSProfile
     # For sending velocity commands to the robot: Twist
     # For the sensors: Imu, LaserScan, and Odometry
 # Check the online documentation to fill in the lines below
-from ... import Twist
+from geometry_msgs.msg import Twist # https://docs.ros.org/en/humble/p/geometry_msgs/msg/Twist.html
 from sensor_msgs.msg import Imu
-from ... import LaserScan
-from ... import Odometry
+from sensor_msgs.msg import LaserScan # https://docs.ros.org/en/humble/p/sensor_msgs/
+from nav_msgs.msg import Odometry # https://docs.ros.org/en/humble/p/nav_msgs/
 
 from rclpy.time import Time
 
