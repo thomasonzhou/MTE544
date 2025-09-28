@@ -1,5 +1,16 @@
 # Autonomous Mobile Robots
 
+Adding labs
+```sh
+git remote add upstream git@github.com:UW-MTE544/MTE544_student.git
+git fetch upstream
+```
+
+Pushing code
+```sh
+git push origin <branch>
+```
+
 
 ## Introduction
 
