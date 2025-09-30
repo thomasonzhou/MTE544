@@ -1,5 +1,20 @@
 # Lab 1
 
+Simulation
+```sh
+ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py
+```
+
+RViz
+```sh
+rviz2
+```
+
+Slam Toolbox
+```sh
+ros2 launch slam_toolbox online_sync_launch.py 
+```
+
 https://github.com/thomasonzhou/MTE544/tree/labOne?tab=readme-ov-file
 
 ## Teleoperation (Parts 1 and 2)
@@ -18,4 +33,10 @@ source ~/robohub/turtlebot4/configs/.bashrc
 export ROS_DOMAIN_ID=$CURR_ROS_DOMAIN_ID
 EOF
 echo "source ~/.tb4_env" >> ~/.bashrc
+```
+
+
+View transforms 
+```sh
+ros2 run tf2_tools view_frames
 ```
