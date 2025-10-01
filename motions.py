@@ -33,6 +33,7 @@ class motion_executioner(Node):
         self.type=motion_type
         
         self.radius_=0.0
+        self.max_radius_=0.5
         
         self.successful_init=False
         self.imu_initialized=False
@@ -78,6 +79,8 @@ class motion_executioner(Node):
 
         self.imu_logger.log_values([acc_x, acc_y, angular_z, timestamp])
 
+        self.imu_initialized = True
+
         
     def odom_callback(self, odom_msg: Odometry):
         # log odom msgs
@@ -91,6 +94,7 @@ class motion_executioner(Node):
 
         self.odom_logger.log_values([odom_x, odom_y, yaw, timestamp])
                 
+        self.odom_initialized = True
 
     def laser_callback(self, laser_msg: LaserScan):
         # log laser msgs with position msg at that time
@@ -101,6 +105,8 @@ class motion_executioner(Node):
         self.laser_logger.log_values([ranges, angle_increment, timestamp])
         # print(f"LiDAR message timestamp = {timestamp}")
         # print(f"LiDAR ranges = {ranges}")
+
+        self.laser_initialized = True
 
 
     
@@ -138,11 +144,12 @@ class motion_executioner(Node):
         msg=Twist()
         # fill up the twist msg for circular motion
 
-        msg.linear.x = 1.0
-        msg.angular.z = 1.0
+        msg.linear.x = 0.2
+        msg.angular.z = -0.5
         return msg
 
     def make_spiral_twist(self):
+
         msg=Twist()
         # fill up the twist msg for spiral motion
         msg.linear.x = 0.5
@@ -152,7 +159,7 @@ class motion_executioner(Node):
     def make_acc_line_twist(self):
         msg=Twist()
         # fill up the twist msg for line motion
-        msg.linear.x = 1.5
+        msg.linear.x = 0.3
         return msg
 
 import argparse
@@ -187,7 +194,5 @@ if __name__=="__main__":
     if ME is not None:
         try:
             rclpy.spin(ME)
-            ME.destroy_node()
-            rclpy.shutdown()
         except KeyboardInterrupt:
             print("Exiting")

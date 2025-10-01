@@ -25,10 +25,7 @@ class Logger:
 
             # TODO Part 5: Write the values from the list to the file
             for val in values_list:
-                if isinstance(val, list):
-                    vals_str += str([str(r) for r in val])
-                else:
-                    vals_str += str(val)
+                vals_str += str(val)
                 vals_str += ", "
             
             vals_str+="\n"
