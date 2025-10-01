@@ -33,7 +33,6 @@ class motion_executioner(Node):
         self.type=motion_type
         
         self.radius_=0.0
-        self.max_radius_=0.5
         
         self.successful_init=False
         self.imu_initialized=False
@@ -159,7 +158,7 @@ class motion_executioner(Node):
     def make_acc_line_twist(self):
         msg=Twist()
         # fill up the twist msg for line motion
-        msg.linear.x = 0.3
+        msg.linear.x = 0.1
         return msg
 
 import argparse
