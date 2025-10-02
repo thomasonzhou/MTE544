@@ -144,21 +144,25 @@ class motion_executioner(Node):
         # fill up the twist msg for circular motion
 
         msg.linear.x = 0.2
-        msg.angular.z = -0.5
+        msg.angular.z = 0.5
         return msg
 
     def make_spiral_twist(self):
 
         msg=Twist()
-        # fill up the twist msg for spiral motion
-        msg.linear.x = 0.5
-        msg.angular.z = 1.0
+        max_linear = 1.5
+        increment = 0.01
+        linear = min(linear + increment, max_linear)
+        msg.linear.x = linear
+
+        msg.angular.z = 3.0
         return msg
     
     def make_acc_line_twist(self):
         msg=Twist()
         # fill up the twist msg for line motion
-        msg.linear.x = 0.1
+        msg.linear.x = 0.5
+        msg.angular.z = 0.0
         return msg
 
 import argparse
