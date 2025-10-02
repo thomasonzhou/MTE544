@@ -33,6 +33,7 @@ class motion_executioner(Node):
         self.type=motion_type
         
         self.radius_=0.0
+        self.linear = 0.0
         
         self.successful_init=False
         self.imu_initialized=False
@@ -152,8 +153,8 @@ class motion_executioner(Node):
         msg=Twist()
         max_linear = 1.5
         increment = 0.01
-        linear = min(linear + increment, max_linear)
-        msg.linear.x = linear
+        self.linear = min(self.linear + increment, max_linear)
+        msg.linear.x = self.linear
 
         msg.angular.z = 3.0
         return msg
