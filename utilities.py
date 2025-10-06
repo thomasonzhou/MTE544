@@ -19,16 +19,20 @@ class Logger:
 
 
     def log_values(self, values_list):
-
+        """
+        Appends a list of values as a comma-separated line to the log file.
+        The list of values to log. Each value in values_list will be converted
+        to a string and separated by commas in the output file.
+        """
         with open(self.filename, 'a') as file:
-            vals_str=""
+            vals_str = ""
 
             # TODO Part 5: Write the values from the list to the file
             for val in values_list:
                 vals_str += str(val)
                 vals_str += ", "
             
-            vals_str+="\n"
+            vals_str += "\n"
             
             file.write(vals_str)
             
@@ -89,7 +93,9 @@ def euler_from_quaternion(quat):
     """
     x, y, z, w = quat
 
+    # Yaw (rotation about Z axis)
+    # Formula: atan2(2(wz + xy), 1 - 2(y^2 + z^2))
     yaw = atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
-    return yaw
+    return yaw # for our purposes, we only care about yaw
 
 
