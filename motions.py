@@ -19,21 +19,23 @@ from rclpy.time import Time
 
 # You may add any other imports you may need/want to use below
 import math
+import argparse
 
 
 CIRCLE=0; SPIRAL=1; ACC_LINE=2
 motion_types=['circle', 'spiral', 'line']
 
 class motion_executioner(Node):
-    
+    """Publishes velocity commands for preset motions and records sensor streams."""
+
     def __init__(self, motion_type=0):
-        
+        """Prepare publishers, subscriptions, loggers, and motion state."""
+
         super().__init__("motion_types")
         
         self.type=motion_type
         
-        self.radius_=0.0
-        self.linear = 0.0
+        self.radius = 0.0 # global radius variable for spiral motion
         
         self.successful_init=False
         self.imu_initialized=False
@@ -71,7 +73,11 @@ class motion_executioner(Node):
     # You can save the needed fields into a list, and pass the list to the log_values function in utilities.py
 
     def imu_callback(self, imu_msg: Imu):
-        # log imu msgs
+        """
+        Extracts linear acceleration (x, y) and angular velocity (z) from the IMU message,
+        logs them to the IMU logger. 
+        Sets imu_initialized to True to indicate the IMU stream active.
+        """
         acc_x = imu_msg.linear_acceleration.x
         acc_y = imu_msg.linear_acceleration.y
         angular_z = imu_msg.angular_velocity.z
@@ -80,10 +86,13 @@ class motion_executioner(Node):
         self.imu_logger.log_values([acc_x, acc_y, angular_z, timestamp])
 
         self.imu_initialized = True
-
         
     def odom_callback(self, odom_msg: Odometry):
-        # log odom msgs
+        """
+        Extracts the robot's x and y position, computes the yaw (heading) from the orientation quaternion,
+        and logs these values to the odometry logger.
+        Sets odom_initialized to True to indicate the odometry stream is active.
+        """
         odom_x = odom_msg.pose.pose.position.x
         odom_y = odom_msg.pose.pose.position.y
 
@@ -93,25 +102,24 @@ class motion_executioner(Node):
         timestamp = Time.from_msg(odom_msg.header.stamp).nanoseconds
 
         self.odom_logger.log_values([odom_x, odom_y, yaw, timestamp])
-                
         self.odom_initialized = True
 
+
     def laser_callback(self, laser_msg: LaserScan):
-        # log laser msgs with position msg at that time
-        ranges = laser_msg.ranges # len(ranges) == 360
-        angle_increment = laser_msg.angle_increment  # 0.01749303564429283, i.e. 1 degree
+        """
+        Extracts the full range array and angle increment from the LaserScan message,
+        logs them to the laser logger.
+        Sets laser_initialized to True to indicate the LiDAR stream is active.
+        """
+        ranges = laser_msg.ranges  # Array of range measurements (len(ranges) == 360)
+        angle_increment = laser_msg.angle_increment  # Angle increment per measurement (radians)
         timestamp = Time.from_msg(laser_msg.header.stamp).nanoseconds
 
         self.laser_logger.log_values([ranges, angle_increment, timestamp])
-        # print(f"LiDAR message timestamp = {timestamp}")
-        # print(f"LiDAR ranges = {ranges}")
-
         self.laser_initialized = True
-
-
-    
                 
     def timer_callback(self):
+        """Publish the active motion once all required sensors report."""
         
         if self.odom_initialized and self.laser_initialized and self.imu_initialized:
             self.successful_init=True
@@ -136,47 +144,59 @@ class motion_executioner(Node):
 
         self.vel_publisher.publish(cmd_vel_msg)
         
-    
     # TODO Part 4: Motion functions: complete the functions to generate the proper messages corresponding to the desired motions of the robot
 
     def make_circular_twist(self):
-        
-        msg=Twist()
-        # fill up the twist msg for circular motion
+        """Return a Twist that drives a constant-radius circle."""
 
-        msg.linear.x = 0.2
-        msg.angular.z = 0.5
+        msg=Twist()
+
+        radius = 0.4
+        omega = 0.5  # angular velocity (rad/s)
+        v = omega * radius  # linear speed for the chosen radius
+
+        msg.linear.x = v
+        msg.angular.z = omega
+
         return msg
 
     def make_spiral_twist(self):
+        """Return a Twist with growing radius to trace a planar spiral.
+           self.radius is incremented (up to a max value); appropriate linear
+           speed is calculated based on self.radius and constant omega.
+        """
 
-        msg=Twist()
-        max_linear = 1.5
+        msg = Twist()
+        
+        max_radius = 1.5
         increment = 0.01
-        self.linear = min(self.linear + increment, max_linear)
-        msg.linear.x = self.linear
+        omega = 3.0  # angular velocity (rad/s)
 
-        msg.angular.z = 3.0
+        # grow the spiral radius
+        self.radius = min(self.radius + increment, max_radius)
+
+        # compute linear velocity based on new radius
+        linear = self.radius * omega
+
+        # assign velocities to the Twist message
+        msg.linear.x = linear
+        msg.angular.z = omega
+
         return msg
     
     def make_acc_line_twist(self):
+        """Return a Twist that maintains a straight path at constant speed."""
         msg=Twist()
         # fill up the twist msg for line motion
         msg.linear.x = 0.5
         msg.angular.z = 0.0
         return msg
 
-import argparse
 
 if __name__=="__main__":
     
-
     argParser=argparse.ArgumentParser(description="input the motion type")
-
-
     argParser.add_argument("--motion", type=str, default="circle")
-
-
 
     rclpy.init()
 
@@ -193,7 +213,6 @@ if __name__=="__main__":
 
     else:
         print(f"we don't have {args.motion.lower()} motion type")
-
 
     if ME is not None:
         try:
