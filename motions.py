@@ -168,9 +168,9 @@ class motion_executioner(Node):
 
         msg = Twist()
         
-        max_radius = 1.5
-        increment = 0.01
-        omega = 3.0  # angular velocity (rad/s)
+        max_radius = 2.5
+        increment = 0.00333
+        omega = 0.5  # angular velocity (rad/s)
 
         # grow the spiral radius
         self.radius = min(self.radius + increment, max_radius)
