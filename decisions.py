@@ -21,6 +21,8 @@ from utilities import calculate_linear_error
 
 # You may add any other imports you may need/want to use below
 # import ...
+from rclpy.qos import ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
+from rclpy.executors import MultiThreadedExecutor
 
 
 class decision_maker(Node):
@@ -30,7 +32,7 @@ class decision_maker(Node):
         super().__init__("decision_maker")
 
         #TODO Part 4: Create a publisher for the topic responsible for robot's motion
-        self.publisher=... 
+        self.publisher=self.create_publisher(publisher_msg, publishing_topic, qos_publisher)
 
         publishing_period=1/rate
         
@@ -62,9 +64,6 @@ class decision_maker(Node):
 
     def timerCallback(self):
         
-        # No separate action needed to "run" the localization node, as it is spinning
-        # and receives odom updates via its callback automatically.
-
         if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
             return
@@ -98,7 +97,6 @@ class decision_maker(Node):
         vel_msg.linear.x = velocity
         vel_msg.angular.z = yaw_rate
         self.publisher.publish(vel_msg)
-        ... 
 
 import argparse
 
@@ -110,21 +108,30 @@ def main(args=None):
     # TODO Part 3: You migh need to change the QoS profile based on whether you're using the real robot or in simulation.
     # Remember to define your QoS profile based on the information available in "ros2 topic info /odom --verbose" as explained in Tutorial 3
     
-    odom_qos=QoSProfile(reliability=2, durability=2, history=1, depth=10)
-    
+    cmd_qos = QoSProfile(
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.VOLATILE,
+        history=HistoryPolicy.KEEP_LAST,
+        depth=10
+    )
+
+    TARGET_POSE = [1, 1]
 
     # TODO Part 4: instantiate the decision_maker with the proper parameters for moving the robot
     if args.motion.lower() == "point":
-        DM=decision_maker(...)
+        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, TARGET_POSE)
     elif args.motion.lower() == "trajectory":
-        DM=decision_maker(...)
+        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, TARGET_POSE)
     else:
         print("invalid motion type", file=sys.stderr)        
     
     
     
     try:
-        spin(DM)
+        executor = MultiThreadedExecutor()
+        executor.add_node(DM)
+        executor.add_node(DM.localizer)
+        executor.spin()
     except SystemExit:
         print(f"reached there successfully {DM.localizer.pose}")
 
