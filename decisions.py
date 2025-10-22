@@ -4,7 +4,6 @@
 import sys
 
 from utilities import euler_from_quaternion, calculate_angular_error, calculate_linear_error
-from pid import PID_ctrl
 
 from rclpy import init, spin, spin_once
 from rclpy.node import Node
@@ -22,7 +21,6 @@ from utilities import calculate_linear_error
 # You may add any other imports you may need/want to use below
 # import ...
 from rclpy.qos import ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
-from rclpy.executors import MultiThreadedExecutor
 
 
 class decision_maker(Node):
@@ -40,12 +38,12 @@ class decision_maker(Node):
         # TODO Part 5: Tune your parameters here
     
         if motion_type == POINT_PLANNER:
-            self.controller=controller(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=controller(klp=0.3, klv=0.1, kli=0.05, kap=0.8, kav=0.6)
             self.planner=planner(POINT_PLANNER)    
     
     
         elif motion_type==TRAJECTORY_PLANNER:
-            self.controller=trajectoryController(klp=0.2, klv=0.5, kap=0.8, kav=0.6)
+            self.controller=trajectoryController(klp=0.5, klv=0.1, kli=0.01, kap=0.8, kav=0.5, kai=0.1)
             self.planner=planner(TRAJECTORY_PLANNER)
 
         else:
@@ -66,7 +64,8 @@ class decision_maker(Node):
 
 
         # TODO Part 3: Run the localization node
-        # Remember that this file is already running the decision_maker node.
+
+        spin_once(self.localizer)
         
         if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
@@ -119,23 +118,21 @@ def main(args=None):
         depth=10
     )
 
-    TARGET_POSE = [1, 1]
+    TARGET_POSE = [-2, -2]
 
     # TODO Part 4: instantiate the decision_maker with the proper parameters for moving the robot
     if args.motion.lower() == "point":
-        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, TARGET_POSE)
+        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, goalPoint=TARGET_POSE, motion_type=POINT_PLANNER)
     elif args.motion.lower() == "trajectory":
-        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, TARGET_POSE)
+        print("using trajectory planner")
+        DM=decision_maker(Twist, "/cmd_vel", cmd_qos, TARGET_POSE, motion_type=TRAJECTORY_PLANNER)
     else:
         print("invalid motion type", file=sys.stderr)        
     
     
     
     try:
-        executor = MultiThreadedExecutor()
-        executor.add_node(DM)
-        executor.add_node(DM.localizer)
-        executor.spin()
+        spin(DM)
     except SystemExit:
         print(f"reached there successfully {DM.localizer.pose}")
 
