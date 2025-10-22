@@ -24,7 +24,7 @@ class planner:
         y = goalPoint[1]
         return x, y
 
-    # Implement the trajectories here
+    # TODO Part 6: Implement the trajectories here
     def trajectory_planner(self, trajectoryType="parabola"):
         """
         Generate a trajectory as a list of [x, y] points.

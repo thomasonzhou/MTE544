@@ -88,7 +88,8 @@ class PID_ctrl:
             sum_ += hist[0]
         
         error_int=sum_*dt_avg
-        
+    
+        # TODO Part 4: Log your errors
         self.logger.log_values([
             latest_error,
             error_dot,

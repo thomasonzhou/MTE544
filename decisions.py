@@ -63,6 +63,10 @@ class decision_maker(Node):
 
 
     def timerCallback(self):
+
+
+        # TODO Part 3: Run the localization node
+        # Remember that this file is already running the decision_maker node.
         
         if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
@@ -87,7 +91,7 @@ class decision_maker(Node):
             self.controller.PID_angular.logger.save_log()
             self.controller.PID_linear.logger.save_log()
             
-            # Exit the spin
+            #TODO Part 3: exit the spin
             import sys
             sys.exit(0)
         
