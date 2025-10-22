@@ -89,9 +89,12 @@ def euler_from_quaternion(quat):
     Convert quaternion (w in last place) to euler roll, pitch, yaw.
     quat = [x, y, z, w]
     """
+    x, y, z, w = quat
 
-    # just unpack yaw
-    return yaw
+    # Yaw (rotation about Z axis)
+    # Formula: atan2(2(wz + xy), 1 - 2(y^2 + z^2))
+    yaw = atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+    return yaw # for our purposes, we only care about yaw
 
 
 #TODO Part 4: Implement the calculation of the linear error
@@ -100,22 +103,18 @@ def calculate_linear_error(current_pose, goal_pose):
     # Compute the linear error in x and y
     # Remember that current_pose = [x,y, theta, time stamp] and goal_pose = [x,y]
     # Remember to use the Euclidean distance to calculate the error.
-    error_linear= ...
+    dx = goal_pose[0] - current_pose[0]
+    dy = goal_pose[1] - current_pose[1]
+    error_linear = sqrt(dx ** 2 + dy ** 2)
 
     return error_linear
 
 #TODO Part 4: Implement the calculation of the angular error
 def calculate_angular_error(current_pose, goal_pose):
 
-    # Compute the linear error in x and y
-    # Remember that current_pose = [x,y, theta, time stamp] and goal_pose = [x,y]
-    # Use atan2 to find the desired orientation
-    # Remember that this function returns the difference in orientation between where the robot currently faces and where it should face to reach the goal
-
-    error_angular = ...
-
-    # Remember to handle the cases where the angular error might exceed the range [-π, π]
-
-    ...
-    
+    dx = goal_pose[0] - current_pose[0]
+    dy = goal_pose[1] - current_pose[1]
+    desired_theta = atan2(dy, dx)
+    error_angular = desired_theta - current_pose[2]
+    error_angular = (error_angular + M_PI) % (2 * M_PI) - M_PI
     return error_angular
