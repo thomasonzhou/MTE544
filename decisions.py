@@ -17,6 +17,7 @@ from localization import localization, rawSensor
 
 from planner import TRAJECTORY_PLANNER, POINT_PLANNER, planner
 from controller import controller, trajectoryController
+from utilities import calculate_linear_error
 
 # You may add any other imports you may need/want to use below
 # import ...
@@ -61,21 +62,24 @@ class decision_maker(Node):
 
     def timerCallback(self):
         
-        # TODO Part 3: Run the localization node
-        ...    # Remember that this file is already running the decision_maker node.
+        # No separate action needed to "run" the localization node, as it is spinning
+        # and receives odom updates via its callback automatically.
 
-        if self.localizer.getPose()  is  None:
+        if self.localizer.getPose() is None:
             print("waiting for odom msgs ....")
             return
 
-        vel_msg=Twist()
-        
-        # TODO Part 3: Check if you reached the goal
-        if type(self.goal) == list:
-            reached_goal=...
-        else: 
-            reached_goal=...
-        
+        vel_msg = Twist()
+
+        # Check if we reached the goal
+        if type(self.goal) == list:  # trajectory: list of points
+            last_goal = self.goal[-1]
+            cur_pose = self.localizer.getPose()
+            # change tolerance as needed
+            reached_goal = calculate_linear_error(cur_pose, last_goal) < 0.07
+        else:  # point planner, goal is [x, y]
+            cur_pose = self.localizer.getPose()
+            reached_goal = calculate_linear_error(cur_pose, self.goal) < 0.07  # 7cm tolerance
 
         if reached_goal:
             print("reached goal")
@@ -84,12 +88,16 @@ class decision_maker(Node):
             self.controller.PID_angular.logger.save_log()
             self.controller.PID_linear.logger.save_log()
             
-            #TODO Part 3: exit the spin
-            ... 
+            # Exit the spin
+            import sys
+            sys.exit(0)
         
         velocity, yaw_rate = self.controller.vel_request(self.localizer.getPose(), self.goal, True)
 
-        #TODO Part 4: Publish the velocity to move the robot
+        # Publish the velocity to move the robot
+        vel_msg.linear.x = velocity
+        vel_msg.angular.z = yaw_rate
+        self.publisher.publish(vel_msg)
         ... 
 
 import argparse
