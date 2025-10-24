@@ -21,7 +21,12 @@ from utilities import calculate_linear_error
 # You may add any other imports you may need/want to use below
 # import ...
 from rclpy.qos import ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
-
+from dataclasses import dataclass
+@dataclass
+class PID_Params:
+    KP: float
+    KD: float
+    KI: float
 
 class decision_maker(Node):
     
@@ -36,14 +41,17 @@ class decision_maker(Node):
         
         # Instantiate the controller
         # TODO Part 5: Tune your parameters here
-    
+        self.pid_l = PID_Params(0.3, 0.1, 0.05) #PDI
+        self.pid_a = PID_Params(0.6, 0.6, 0.0) #PDI
+
+
         if motion_type == POINT_PLANNER:
-            self.controller=controller(klp=0.3, klv=0.1, kli=0.05, kap=0.6, kav=0.6)
+            self.controller=controller(klp=self.pid_l.KP, klv=self.pid_l.KD, kli=self.pid_l.KI, kap=self.pid_a.KP, kav=self.pid_a.KD, kai=self.pid_a.KI)
             self.planner=planner(POINT_PLANNER)    
     
     
         elif motion_type==TRAJECTORY_PLANNER:
-            self.controller=trajectoryController(klp=0.5, klv=0.1, kli=0.01, kap=0.6, kav=0.5, kai=0.1)
+            self.controller=trajectoryController(klp=self.pid_l.KP, klv=self.pid_l.KD, kli=self.pid_l.KI, kap=self.pid_a.KP, kav=self.pid_a.KD, kai=self.pid_a.KI)
             self.planner=planner(TRAJECTORY_PLANNER)
 
         else:
