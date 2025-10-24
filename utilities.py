@@ -1,4 +1,5 @@
 from math import atan2, asin, sqrt
+import os
 
 M_PI=3.1415926535
 
@@ -7,6 +8,11 @@ class Logger:
     def __init__(self, filename, headers=["e", "e_dot", "e_int", "stamp"]):
         
         self.filename = filename
+
+        # Ensure the parent directory exists if provided
+        parent_dir=os.path.dirname(self.filename)
+        if parent_dir != "":
+            os.makedirs(parent_dir, exist_ok=True)
 
         with open(self.filename, 'w') as file:
             

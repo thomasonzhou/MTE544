@@ -27,7 +27,7 @@ class localization(Node):
             history=HistoryPolicy.KEEP_LAST,
             depth=10
         )
-        self.loc_logger=Logger("robot_pose.csv", ["x", "y", "theta", "stamp"])
+        self.loc_logger=Logger("logs/robot_pose.csv", ["x", "y", "theta", "stamp"])
         self.pose=None
         
         if localizationType == rawSensor:
