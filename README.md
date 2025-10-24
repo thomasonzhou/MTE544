@@ -1,5 +1,9 @@
 # LAB 2 - Closed loop control of mobile robots
 
+- Tune PID params in `decisions.py`
+- Change trajectory type in `planner.py`
+- Change P/PD/PID controller type in `controller.py`
+
 ## Introduction
 
 Welcome to LAB 2 of the mobile robotics course! Here, you start shaping the overall structure of your mobile robot stack. Please check again the architecture provided in the README.md in the main branch and leave that open on your web browser. 
