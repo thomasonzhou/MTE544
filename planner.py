@@ -8,7 +8,7 @@ class planner:
 
         self.type=type_
 
-    def plan(self, goalPoint=[-1.0, -1.0], trajectoryType="sigmoid"):
+    def plan(self, goalPoint=[-1.0, -1.0], trajectoryType="parabola"):
         """
         Returns a single goal point (for POINT_PLANNER) or a list of trajectory points (for TRAJECTORY_PLANNER).
         For trajectory, trajectoryType: "parabola" or "sigmoid"
@@ -25,7 +25,7 @@ class planner:
         return x, y
 
     # TODO Part 6: Implement the trajectories here
-    def trajectory_planner(self, trajectoryType="sigmoid"):
+    def trajectory_planner(self, trajectoryType="parabola"):
         """
         Generate a trajectory as a list of [x, y] points.
         Supported: 'parabola', 'sigmoid'
