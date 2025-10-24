@@ -47,6 +47,13 @@ class PID_ctrl:
         
         # If insufficient data points, use only the proportional gain
         if (len(self.history) != self.history_length):
+            # Log with zero derivative and integral so early samples are captured
+            self.logger.log_values([
+                latest_error,
+                0.0,
+                0.0,
+                Time.from_msg(stamp).nanoseconds / 1e9,
+            ])
             return self.kp * latest_error
         
         # Compute the error derivative

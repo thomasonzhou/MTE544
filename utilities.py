@@ -36,7 +36,14 @@ class Logger:
             
 
     def save_log(self):
-        pass
+        # Ensure file exists and is flushed; this method can be expanded if needed
+        try:
+            with open(self.filename, 'a') as file:
+                file.flush()
+        except Exception:
+            # Intentionally ignore logging persistence errors to not crash the node
+            return
+
 
 class FileReader:
     def __init__(self, filename):
