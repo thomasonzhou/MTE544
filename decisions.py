@@ -42,7 +42,7 @@ class decision_maker(Node):
         # Instantiate the controller
         # TODO Part 5: Tune your parameters here
         self.pid_l = PID_Params(0.2, 0.1, 0.05) #PDI
-        self.pid_a = PID_Params(0.67, 0.6, 0.05) #PDI
+        self.pid_a = PID_Params(0.4, 0.55, 0.05) #PDI
 
 
         if motion_type == POINT_PLANNER:
