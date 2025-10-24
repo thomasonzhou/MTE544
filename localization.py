@@ -21,10 +21,17 @@ class localization(Node):
 
         # odom_qos=QoSProfile(reliability=2, durability=2, history=1, depth=10) # params from tutorial
 
+        #sim
+        # odom_qos = QoSProfile(
+        #     reliability=ReliabilityPolicy.RELIABLE,
+        #     durability=DurabilityPolicy.VOLATILE,
+        #     history=HistoryPolicy.KEEP_LAST,
+        #     depth=10
+        # )
+        # physical robot
         odom_qos = QoSProfile(
-            reliability=ReliabilityPolicy.RELIABLE,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
             durability=DurabilityPolicy.VOLATILE,
-            history=HistoryPolicy.KEEP_LAST,
             depth=10
         )
         self.loc_logger=Logger("logs/robot_pose.csv", ["x", "y", "theta", "stamp"])
