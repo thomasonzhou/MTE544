@@ -124,10 +124,17 @@ def calculate_linear_error(current_pose, goal_pose):
 
 #TODO Part 4: Implement the calculation of the angular error
 def calculate_angular_error(current_pose, goal_pose):
-
+    # Compute difference in x and y between goal and current position
     dx = goal_pose[0] - current_pose[0]
     dy = goal_pose[1] - current_pose[1]
+    
+    # Compute the desired orientation (angle to goal)
     desired_theta = atan2(dy, dx)
+    
+    # Compute the angular error (difference between desired and current orientation)
     error_angular = desired_theta - current_pose[2]
+    
+    # Normalize error to lie within [-pi, pi]
     error_angular = (error_angular + M_PI) % (2 * M_PI) - M_PI
+    
     return error_angular

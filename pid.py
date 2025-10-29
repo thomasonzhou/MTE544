@@ -102,18 +102,18 @@ class PID_ctrl:
             error_dot,
             error_int,
             Time.from_msg(stamp).nanoseconds / 1e9,
-        ])
+        ]) #  Log errors using logger
         
         # TODO Part 4: Implement the control law of P-controller
         if self.type == P:
-            return self.kp * latest_error
+            return self.kp * latest_error # proportional feedback
         
         # TODO Part 5: Implement the control law corresponding to each type of controller
         elif self.type == PD:
-            return self.kp * latest_error + self.kv * error_dot
+            return self.kp * latest_error + self.kv * error_dot # proportional + derivative feedback
         
         elif self.type == PI:
-            return self.kp * latest_error + self.ki * error_int
+            return self.kp * latest_error + self.ki * error_int # proportional + integral feedback
         
         elif self.type == PID:
-            return self.kp * latest_error + self.kv * error_dot + self.ki * error_int
+            return self.kp * latest_error + self.kv * error_dot + self.ki * error_int # proportional + integral + derivative feedback

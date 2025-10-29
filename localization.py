@@ -21,13 +21,14 @@ class localization(Node):
 
         # odom_qos=QoSProfile(reliability=2, durability=2, history=1, depth=10) # params from tutorial
 
-        #sim
+        # sim
         # odom_qos = QoSProfile(
         #     reliability=ReliabilityPolicy.RELIABLE,
         #     durability=DurabilityPolicy.VOLATILE,
         #     history=HistoryPolicy.KEEP_LAST,
         #     depth=10
         # )
+
         # physical robot
         odom_qos = QoSProfile(
             reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -49,10 +50,14 @@ class localization(Node):
     
     
     def odom_callback(self, pose_msg):
-        # TODO Part 3: Read x,y, theta, and record the stamp
+        # Extract position (x, y, z) from the Odometry message
         position = pose_msg.pose.pose.position
+        
+        # Extract orientation (quaternion) from the Odometry message
         orientation = pose_msg.pose.pose.orientation
 
+        # Convert quaternion orientation to Euler angles (yaw only)
+        # euler_from_quaternion returns the yaw angle for our usage
         euler = euler_from_quaternion(
             [
                 orientation.x,
@@ -61,8 +66,12 @@ class localization(Node):
                 orientation.w,
             ]
         )
+        # If euler is a tuple/list (some conversion functions), extract index 2 for yaw
+        # but if it's a single float (our version), just use as is
         theta = euler[2] if isinstance(euler, (list, tuple)) else euler
 
+        # Save the robot's pose as [x, y, theta, timestamp]
+        # The timestamp is taken directly from the header
         self.pose = [
             position.x,
             position.y,
@@ -70,7 +79,8 @@ class localization(Node):
             pose_msg.header.stamp,
         ]
         
-        # Log the data
+        # Log the current pose for later analysis or debugging
+        # The logger records [x, y, theta, stamp in nanoseconds]
         self.loc_logger.log_values([self.pose[0], self.pose[1], self.pose[2], Time.from_msg(self.pose[3]).nanoseconds])
     
     def getPose(self):
