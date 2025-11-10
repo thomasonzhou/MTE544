@@ -38,6 +38,8 @@ class mapManipulator(Node):
             filenamePGM=filename_+".pgm"
 
         self.laser_sig = laser_sig
+
+        #origin x, origin y, resolution (meters/pixel), threshold to determine if obstacle
         self.o_x, self.o_y, self.res, self.thresh = self.read_description(filenameYaml)
         width, height, max_value, pixels = self.read_pgm(filenamePGM)
 
@@ -61,7 +63,7 @@ class mapManipulator(Node):
         # shift the origin
         self.o_x -= num_pixel_to_expand * self.res
         self.o_y -= num_pixel_to_expand * self.res
-        return expanded_image
+        return expanded_image # padded image with free space around
         
     def getAllObstacles(self):
         image_array=self.image_array.T
@@ -174,21 +176,23 @@ class mapManipulator(Node):
 
         from sklearn.neighbors import KDTree
         
-        indices = np.where(image_array < 10)
-        indices_arr = np.array([indices[0], indices[1]]).T
+        indices = np.where(image_array < 10) # find indicies where there are obstacles
+        indices_arr = np.array([indices[0], indices[1]]).T # list of indices of obstacles
         
-        occupied_points = self.cell_2_position(indices_arr)
+        occupied_points = self.cell_2_position(indices_arr) # list of occupied point coordinates
         all_indices = np.array([[i, j] for i in range(self.height) for j in range(self.width)])
         all_positions = self.cell_2_position(all_indices)
 
-        kdt=KDTree(occupied_points)
+        kdt=KDTree(occupied_points) # build KD tree for fast lookups of obstacles
 
-        dists=kdt.query(all_positions, k=1)[0][:]
-        probabilities=np.exp( -(dists**2) / (2*self.laser_sig**2))
+        dists=kdt.query(all_positions, k=1)[0][:] # for each point, find the closest obstacle
+        # gaussian likelihood field of being near an obstacle, weighed by sensor noise
+        probabilities=np.exp( -(dists**2) / (2*self.laser_sig**2)) 
         
-        likelihood_field=probabilities.reshape(image_array.shape)
+        likelihood_field=probabilities.reshape(image_array.shape) 
         
-        likelihood_field_img=np.array(255-255*probabilities.reshape(image_array.shape), dtype=np.int32)
+        # turn into a previewable image (0 - 255), darker values represent obstacles
+        likelihood_field_img=np.array(255-255*probabilities.reshape(image_array.shape), dtype=np.int32) 
         
         self.likelihood_img=likelihood_field_img
         

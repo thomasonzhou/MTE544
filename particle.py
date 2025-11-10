@@ -35,20 +35,28 @@ class particle:
         # transform cartesian points to be centered and rotated in map frame
         scanInMap = np.dot(T, scanCartesianHomo.T).T # (360, 3)
 
+        # get a map with Gaussian likelihoods of obstacles
+        # it doesn't sum to 1 but we only care about relative weights of particles
+        # (we will ensure total probability of selection is 1 using normalization)
         likelihoodField = mapManipulatorInstance.getLikelihoodField()
+
+        # get cell of each laser point in the map
         cellPositions = mapManipulatorInstance.position_2_cell(
             scanInMap[:, 0:2])
 
         lm_x, lm_y = likelihoodField.shape
 
+        # remove all laser scans outside the map boundaries
         cellPositions = cellPositions[np.logical_and.reduce(
                 (cellPositions[:, 0] > 0, -cellPositions[:, 1] > 0, cellPositions[:, 0] < lm_y,  -cellPositions[:, 1] < lm_x))]
 
+        # take the log probability to allow for summation rather than multiplication
         log_weights = np.log(
             likelihoodField[-cellPositions[:, 1], cellPositions[:, 0]])
+        # the sum of the log probablities defines how closely the walls detected by the particle match the map
         log_weight = np.sum(log_weights)
-        weight = np.exp(log_weight)
-        weight += 1e-10
+        weight = np.exp(log_weight) # take exponential to get back to the total probability (unscaled)
+        weight += 1e-10 # add small value for numerical stability (we don't want to divide by zero)
 
         self.setWeight(weight)
 
