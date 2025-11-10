@@ -100,7 +100,7 @@ class particleFilter(Node):
         numParticles = self.numParticles
 
         # TODO: generate the particles around the initial pose (x, y, th) (you should use the std_particle_x, std_particle_y, std_particle_theta)
-        self.particlePoses = ... #size should be (numParticles, 3)
+        self.particlePoses = np.random.normal(loc=(x, y, th), scale=(self.std_particle_x, self.std_particle_y, self.std_particle_theta), size=(numParticles, 3)) #size should be (numParticles, 3)
 
         self.particles = [particle(particle_, 1/numParticles) for particle_ in
                           self.particlePoses]
@@ -131,6 +131,7 @@ class particleFilter(Node):
 
             marker.id = i
             marker.ns = "particles"
+            # markers automatically decay after 0.3 seconds, ensuring data is not stale
             marker.lifetime = Duration(seconds=0.3).to_msg()
 
             marker.type = marker.ARROW
@@ -173,14 +174,19 @@ class particleFilter(Node):
         particles_weights = particles_weights / np.sum(particles_weights)
         
         # TODO: randomly sampling N particles from the list of particles based on their weights (hint: use np.random.choice)
-        sampled_particles = ...
+        # we sample with replacement to ensure the probabilities are appropriately represented
+        sampled_particles = np.random.choice(
+            self.particles, 
+            size=self.numParticles, 
+            replace=True,
+            p=particles_weights)
 
         for bp in sampled_particles:
             x, y, th = bp.getPose()
             # TODO: add noise to the x, y, and th, use the same std_noise for x, y, and th
-            new_x = x + ...
-            new_y = y + ...
-            new_th = th + ...
+            new_x = x + np.random.normal(scale=std_noise)
+            new_y = y + np.random.normal(scale=std_noise)
+            new_th = th + np.random.normal(scale=std_noise)
 
             new_particle = particle([new_x, new_y, new_th], bp.getWeight())
 

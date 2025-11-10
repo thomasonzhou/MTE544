@@ -18,6 +18,7 @@ class particle:
         w: angular velocity
         dt: time step
         """
+        # this is a linearized motion model that assumes the timestep is small and rotational displacement is minimal
         theta = self.pose[2]
         self.pose[0] += v*np.cos(theta)*dt
         self.pose[1] += v*np.sin(theta)*dt
@@ -26,10 +27,13 @@ class particle:
     # TODO: You need to explain the following function to TA
     def calculateParticleWeight(self, scanOutput: LaserScan, mapManipulatorInstance: mapManipulator, laser_to_ego_transformation: np.array):
 
+        # transform to align point clouds with the pose of the robot
         T = np.matmul(self.__poseToTranslationMatrix(), laser_to_ego_transformation)
 
-        _, scanCartesianHomo = convertScanToCartesian(scanOutput)
-        scanInMap = np.dot(T, scanCartesianHomo.T).T
+        # convert polar coordinates (360 degrees with range) to x, y, 1
+        _, scanCartesianHomo = convertScanToCartesian(scanOutput) # (360, 3)
+        # transform cartesian points to be centered and rotated in map frame
+        scanInMap = np.dot(T, scanCartesianHomo.T).T # (360, 3)
 
         likelihoodField = mapManipulatorInstance.getLikelihoodField()
         cellPositions = mapManipulatorInstance.position_2_cell(
