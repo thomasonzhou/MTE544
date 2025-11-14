@@ -31,7 +31,7 @@ from rclpy.time import Time
 class particleFilter(Node):
 
     def __init__(self, mapFilename="your_map/room.yaml", numParticles=500):
-
+        print(f"using {mapFilename}")
         super().__init__("particleFiltering")
 
         # QoS profile for the subscribers

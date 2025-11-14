@@ -171,7 +171,7 @@ class mapManipulator(Node):
 
     # TODO part 4: See through this method and explain how it works to the TA
     def make_likelihood_field(self):
-        
+        print("making likelihood field")
         image_array=self.image_array
 
         from sklearn.neighbors import KDTree
