@@ -15,8 +15,8 @@ class controller:
     
     def __init__(self, klp=0.2, klv=0.2, kli=0.2, kap=0.2, kav=0.2, kai=0.2):
         
-        self.PID_linear=PID_ctrl(PID, klp=0.2, klv=0.1, kli=0.05, filename_="linear.csv")
-        self.PID_angular=PID_ctrl(PID, kap=0.4, kav=0.55, kai=0.05, filename_="angular.csv")
+        self.PID_linear=PID_ctrl(PID, 0.2, 0.1, 0.05, filename_="linear.csv")
+        self.PID_angular=PID_ctrl(PID, 0.4, 0.55, 0.05, filename_="angular.csv")
 
     
     def vel_request(self, pose, goal, status):
