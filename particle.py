@@ -28,7 +28,7 @@ class particle:
     def calculateParticleWeight(self, scanOutput: LaserScan, mapManipulatorInstance: mapManipulator, laser_to_ego_transformation: np.array):
 
         # transform to align point clouds with the pose of the robot
-        T = np.matmul(self.__poseToTranslationMatrix(), laser_to_ego_transformation)
+        T = np.matmul(self.__poseToTranslationMatrix(), laser_to_ego_transformation) # laser frame to ego frame to map frame
 
         # convert polar coordinates (360 degrees with range) to x, y, 1
         _, scanCartesianHomo = convertScanToCartesian(scanOutput) # (360, 3)
