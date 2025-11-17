@@ -188,7 +188,7 @@ class particleFilter(Node):
             new_y = y + np.random.normal(scale=std_noise)
             new_th = th + np.random.normal(scale=std_noise)
 
-            new_particle = particle([new_x, new_y, new_th], bp.getWeight())
+            new_particle = particle([new_x, new_y, new_th], bp.getWeight()) # create new particles from weight-based resampling
 
             new_particle.calculateParticleWeight(
                 laser_scan, mapUtilInstance, self.laser_to_ego_transform)

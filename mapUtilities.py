@@ -174,7 +174,7 @@ class mapManipulator(Node):
         print("making likelihood field")
         image_array=self.image_array
 
-        from sklearn.neighbors import KDTree
+        from sklearn.neighbors import KDTree # use KDTree for fast search
         
         indices = np.where(image_array < 10) # find indicies where there are obstacles
         indices_arr = np.array([indices[0], indices[1]]).T # list of indices of obstacles
