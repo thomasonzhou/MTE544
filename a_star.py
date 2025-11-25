@@ -212,7 +212,7 @@ def search(maze, start, end, heuristic_class):
 
             # TODO PART 4 Create the f, g, and h values
 
-            # distances have higher cost
+            # diagonal distances have higher cost
             step_cost = sqrt((child.position[0] - child.parent.position[0])**2 + (child.position[1] - child.parent.position[1])**2)
             
             # OR assume constant step cost for all neighbouring cells
